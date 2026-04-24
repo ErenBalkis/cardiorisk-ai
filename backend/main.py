@@ -61,27 +61,41 @@ def read_root():
 
 @app.post("/predict")
 def predict_risk(data: PatientData):
-    # 1. Convert the incoming JSON data to a single-row Pandas DataFrame
-    df = pd.DataFrame([data.model_dump()])
+    # 1. Convert the incoming JSON data to a dictionary
+    input_data = data.model_dump()
     
-    # 2. Convert categorical data to One-Hot Encoding format
-    df = pd.get_dummies(df, columns=cat_features, drop_first=True)
+    # 2. Build a zeroed-out DataFrame with the exact columns the model expects
+    df = pd.DataFrame([{col: 0 for col in model_columns}])
     
-    # 3. Column Matching (Critical Step)
-    # The user's data may not have all categories. We enforce all columns expected
-    # by the model and fill missing ones with 0.
-    df = df.reindex(columns=model_columns, fill_value=0)
+    # 3. Fill in the numeric features directly
+    for feat in numeric_features:
+        df[feat] = input_data[feat]
     
-    # 4. Scale numerical data with the scaler (Bring to training standards)
+    # 4. Manually apply one-hot encoding for categorical features
+    # NOTE: pd.get_dummies on a single row with drop_first=True silently drops
+    # ALL categorical columns because only one category is present per row.
+    # We must manually set the correct dummy column to 1.
+    for feat in cat_features:
+        val = input_data[feat]
+        if val == 0:
+            # Value 0 is the "dropped first" category — all dummy columns stay 0
+            continue
+        col_name = f"{feat}_{val}"
+        if col_name in model_columns:
+            df[col_name] = 1
+    
+    # 5. Scale numerical data with the scaler (bring to training standards)
     df[numeric_features] = scaler.transform(df[numeric_features])
     
-    # 5. Make a prediction using the model
-    prediction = model.predict(df)
-    probability = model.predict_proba(df)[0][1] # Probability of Class 1 (High Risk)
+    # 6. Make a prediction using the model
+    # NOTE: In this dataset, output=0 means DISEASE (high risk), output=1 means HEALTHY (low risk).
+    # Therefore, the probability of disease is P(class=0), not P(class=1).
+    probability = model.predict_proba(df)[0][0]  # Probability of Class 0 (Disease / High Risk)
+    risk_prediction = 1 if probability >= 0.5 else 0
     
-    # 6. Return the result as JSON
+    # 7. Return the result as JSON
     return {
-        "risk_prediction": int(prediction[0]), 
+        "risk_prediction": risk_prediction, 
         "risk_probability": round(float(probability), 4),
-        "message": "High Risk!" if prediction[0] == 1 else "Low Risk."
+        "message": "High Risk!" if risk_prediction == 1 else "Low Risk."
     }
