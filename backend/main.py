@@ -46,9 +46,9 @@ class PatientData(BaseModel):
     exng: int
     
     fbs: int = 0
-    restecg: int = 1
+    restecg: int = 0
     thalachh: int = 150
-    oldpeak: float = 0.8
+    oldpeak: float = 1.0
     slp: int = 1
     caa: int = 0
     thall: int = 2
@@ -88,9 +88,9 @@ def predict_risk(data: PatientData):
     df[numeric_features] = scaler.transform(df[numeric_features])
     
     # 6. Make a prediction using the model
-    # NOTE: In this dataset, output=0 means DISEASE (high risk), output=1 means HEALTHY (low risk).
-    # Therefore, the probability of disease is P(class=0), not P(class=1).
-    probability = model.predict_proba(df)[0][0]  # Probability of Class 0 (Disease / High Risk)
+    # The model was trained with inverted target: 1 = disease (high risk), 0 = healthy.
+    # Therefore, predict_proba[0][1] directly gives the disease probability.
+    probability = model.predict_proba(df)[0][1]  # P(class=1) = P(Disease / High Risk)
     risk_prediction = 1 if probability >= 0.5 else 0
     
     # 7. Return the result as JSON

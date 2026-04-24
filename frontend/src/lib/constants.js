@@ -5,15 +5,15 @@
  * and UI configuration for the heart attack risk prediction wizard.
  */
 
-// ─── Default Values (Median for numerical, Mode for categorical) ────────────
-// These values are derived from the UCI Heart Disease dataset (303 records).
+// ─── Default Values (Dataset-wide Median / Mode) ────────────────────────────
+// These values are the overall dataset medians/modes (not biased toward healthy).
 // Used when the user does not fill in the optional "Advanced Clinical Data" fields.
 export const DEFAULTS = {
   fbs: 0,        // Fasting blood sugar > 120 mg/dl — Mode: 0 (85% are 0)
-  restecg: 1,    // Resting ECG results — Mode: 1 (Normal)
+  restecg: 0,    // Resting ECG results — Mode across full dataset: 0
   exng: 0,       // Exercise-induced angina — Mode: 0 (67% are 0)
-  oldpeak: 0.8,  // ST depression — Median: 0.8
-  slp: 2,        // Slope of peak exercise ST segment — Mode: 2 (Flat)
+  oldpeak: 1.0,  // ST depression — Overall median: ~1.0
+  slp: 1,        // Slope of peak exercise ST segment — Overall mode: 1 (Flat)
   caa: 0,        // Number of major vessels colored by fluoroscopy — Mode: 0 (57%)
   thall: 2,      // Thalassemia — Mode: 2 (Normal, 55%)
 };
@@ -29,36 +29,38 @@ export const STEPS = [
 ];
 
 // ─── Chest Pain Type Descriptions ────────────────────────────────────────────
+// Ordered from highest to lowest clinical risk based on dataset disease rates.
+// cp=0 (Typical Angina) has 72.7% disease rate — by far the most dangerous.
 export const CHEST_PAIN_TYPES = [
   {
     value: 0,
-    title: 'Typical Angina',
-    description: 'Predictable chest pain triggered by exertion or stress, relieved by rest.',
-    icon: '😣',
+    title: 'Typical Angina (Highest Risk)',
+    description: 'Squeezing or pressure-like chest pain triggered by exertion or stress, relieved by rest. Classic sign of coronary artery disease.',
+    icon: '🔴',
     color: 'from-red-500/20 to-red-600/10',
     borderColor: 'border-red-500/50',
   },
   {
     value: 1,
     title: 'Atypical Angina',
-    description: 'Chest discomfort that doesn\'t follow typical angina patterns.',
-    icon: '😕',
+    description: 'Chest discomfort that doesn\'t follow classic angina patterns — may include jaw, neck, or arm pain.',
+    icon: '🟠',
     color: 'from-orange-500/20 to-orange-600/10',
     borderColor: 'border-orange-500/50',
   },
   {
-    value: 2,
-    title: 'Non-Anginal Pain',
-    description: 'Chest pain that is unlikely to be related to heart disease.',
-    icon: '🤔',
+    value: 3,
+    title: 'Asymptomatic (Silent)',
+    description: 'No chest pain or discomfort at all. Can still carry risk — some heart conditions are "silent."',
+    icon: '🟡',
     color: 'from-yellow-500/20 to-yellow-600/10',
     borderColor: 'border-yellow-500/50',
   },
   {
-    value: 3,
-    title: 'Asymptomatic',
-    description: 'No chest pain or discomfort experienced at all.',
-    icon: '😊',
+    value: 2,
+    title: 'Non-Anginal Pain (Lowest Risk)',
+    description: 'Chest pain that is unlikely to be related to the heart — may be muscular, digestive, or stress-related.',
+    icon: '🟢',
     color: 'from-green-500/20 to-green-600/10',
     borderColor: 'border-green-500/50',
   },
