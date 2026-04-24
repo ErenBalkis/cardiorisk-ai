@@ -10,6 +10,7 @@ import { ADVANCED_FIELDS, DEFAULTS } from "@/lib/constants";
 export default function StepHeartRate({ value, onChange, advancedData, onAdvancedChange }) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const hr = value || 150;
+  const [inputValue, setInputValue] = useState(String(hr));
 
   // Max heart rate estimate: 220 - age (rough formula)
   const getCategory = (v) => {
@@ -19,6 +20,26 @@ export default function StepHeartRate({ value, onChange, advancedData, onAdvance
   };
 
   const cat = getCategory(hr);
+
+  const handleInputChange = (e) => {
+    const raw = e.target.value;
+    setInputValue(raw);
+
+    const v = parseInt(raw);
+    if (!isNaN(v) && v >= 60 && v <= 220) {
+      onChange(v);
+    }
+  };
+
+  const handleBlur = () => {
+    setInputValue(String(hr));
+  };
+
+  const handleSliderChange = (e) => {
+    const v = parseInt(e.target.value);
+    onChange(v);
+    setInputValue(String(v));
+  };
 
   const renderAdvancedField = (field) => {
     const currentValue = advancedData[field.id] ?? DEFAULTS[field.id];
@@ -122,7 +143,7 @@ export default function StepHeartRate({ value, onChange, advancedData, onAdvance
           min={60}
           max={220}
           value={hr}
-          onChange={(e) => onChange(parseInt(e.target.value))}
+          onChange={handleSliderChange}
           className="w-full cursor-pointer"
         />
         <div className="mt-2 flex justify-between text-xs text-text-secondary/60">
@@ -142,11 +163,10 @@ export default function StepHeartRate({ value, onChange, advancedData, onAdvance
           type="number"
           min={60}
           max={220}
-          value={hr}
-          onChange={(e) => {
-            const v = parseInt(e.target.value);
-            if (v >= 60 && v <= 220) onChange(v);
-          }}
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          onFocus={(e) => e.target.select()}
           className="glass w-24 rounded-xl px-3 py-2 text-center font-heading text-lg font-semibold outline-none transition-all focus:ring-2 focus:ring-heart/40"
         />
       </div>

@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
 /**
  * StepCholesterol — Step 5: Serum cholesterol input.
  * Includes health range visualization.
  */
 export default function StepCholesterol({ value, onChange }) {
   const chol = value || 200;
+  const [inputValue, setInputValue] = useState(String(chol));
 
   const getCategory = (v) => {
     if (v < 200) return { label: "Desirable", color: "text-success", bg: "bg-success" };
@@ -14,6 +17,26 @@ export default function StepCholesterol({ value, onChange }) {
   };
 
   const cat = getCategory(chol);
+
+  const handleInputChange = (e) => {
+    const raw = e.target.value;
+    setInputValue(raw);
+
+    const v = parseInt(raw);
+    if (!isNaN(v) && v >= 100 && v <= 600) {
+      onChange(v);
+    }
+  };
+
+  const handleBlur = () => {
+    setInputValue(String(chol));
+  };
+
+  const handleSliderChange = (e) => {
+    const v = parseInt(e.target.value);
+    onChange(v);
+    setInputValue(String(v));
+  };
 
   return (
     <div className="step-enter flex flex-col items-center">
@@ -43,7 +66,7 @@ export default function StepCholesterol({ value, onChange }) {
           min={100}
           max={600}
           value={chol}
-          onChange={(e) => onChange(parseInt(e.target.value))}
+          onChange={handleSliderChange}
           className="w-full cursor-pointer"
         />
         <div className="mt-3 flex justify-between text-xs">
@@ -61,11 +84,10 @@ export default function StepCholesterol({ value, onChange }) {
           type="number"
           min={100}
           max={600}
-          value={chol}
-          onChange={(e) => {
-            const v = parseInt(e.target.value);
-            if (v >= 100 && v <= 600) onChange(v);
-          }}
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          onFocus={(e) => e.target.select()}
           className="glass w-24 rounded-xl px-3 py-2 text-center font-heading text-lg font-semibold outline-none transition-all focus:ring-2 focus:ring-heart/40"
         />
       </div>

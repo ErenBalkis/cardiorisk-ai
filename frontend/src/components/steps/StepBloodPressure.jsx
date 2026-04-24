@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
 /**
  * StepBloodPressure — Step 4: Resting blood pressure input.
  * Includes visual gauge and health range indicators.
  */
 export default function StepBloodPressure({ value, onChange }) {
   const bp = value || 120;
+  const [inputValue, setInputValue] = useState(String(bp));
 
   const getCategory = (v) => {
     if (v < 90) return { label: "Low", color: "text-blue-400", bg: "bg-blue-400" };
@@ -15,6 +18,26 @@ export default function StepBloodPressure({ value, onChange }) {
   };
 
   const cat = getCategory(bp);
+
+  const handleInputChange = (e) => {
+    const raw = e.target.value;
+    setInputValue(raw);
+
+    const v = parseInt(raw);
+    if (!isNaN(v) && v >= 80 && v <= 200) {
+      onChange(v);
+    }
+  };
+
+  const handleBlur = () => {
+    setInputValue(String(bp));
+  };
+
+  const handleSliderChange = (e) => {
+    const v = parseInt(e.target.value);
+    onChange(v);
+    setInputValue(String(v));
+  };
 
   return (
     <div className="step-enter flex flex-col items-center">
@@ -44,7 +67,7 @@ export default function StepBloodPressure({ value, onChange }) {
           min={80}
           max={200}
           value={bp}
-          onChange={(e) => onChange(parseInt(e.target.value))}
+          onChange={handleSliderChange}
           className="w-full cursor-pointer"
         />
         {/* Range labels */}
@@ -64,11 +87,10 @@ export default function StepBloodPressure({ value, onChange }) {
           type="number"
           min={80}
           max={200}
-          value={bp}
-          onChange={(e) => {
-            const v = parseInt(e.target.value);
-            if (v >= 80 && v <= 200) onChange(v);
-          }}
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleBlur}
+          onFocus={(e) => e.target.select()}
           className="glass w-24 rounded-xl px-3 py-2 text-center font-heading text-lg font-semibold outline-none transition-all focus:ring-2 focus:ring-heart/40"
         />
       </div>

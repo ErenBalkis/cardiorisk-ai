@@ -1,112 +1,188 @@
-# Heart Attack Risk Analysis & Prediction
+<div align="center">
 
-A full-stack machine learning application designed to predict the likelihood of a heart attack based on patient clinical data. This project features a robust **Logistic Regression** model, a high-performance **FastAPI** backend, and a modern **Next.js** frontend with **Tailwind CSS**.
+# 🫀 CardioRisk AI
 
-## 🚀 Features
-- **Machine Learning Model**: Built with `scikit-learn` using Logistic Regression, trained on a processed clinical dataset.
-- **Data Preprocessing Pipeline**: Includes outlier detection using IQR, standard scaling for numerical data, and one-hot encoding for categorical variables.
-- **RESTful API Engine**: Powered by **FastAPI** to serve model predictions instantly, complete with Swagger UI documentation and `pydantic` validation.
-- **Modern Interactive Frontend**: A step-by-step interactive wizard built with **Next.js** and styled with **Tailwind CSS v4** to effortlessly collect patient data and display risk probabilities on a beautiful dashboard.
+**AI-Powered Heart Attack Risk Prediction**
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-cardiorisk--ai.vercel.app-E63946?style=for-the-badge)](https://cardiorisk-ai.vercel.app/)
+[![Dataset](https://img.shields.io/badge/📊_Dataset-Kaggle-20BEFF?style=for-the-badge)](https://www.kaggle.com/datasets/sonialikhan/heart-attack-analysis-and-prediction-dataset)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
+
+A full-stack machine learning web application that predicts cardiovascular risk using clinical patient data. Built with a **Logistic Regression** model (~90% accuracy), served via a **FastAPI** backend, and presented through a modern **Next.js** interactive wizard interface.
+
+</div>
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🧠 **ML Model** | Logistic Regression trained on the UCI Heart Disease dataset with ~90% test accuracy |
+| 🔄 **Data Pipeline** | Automated outlier removal (IQR), StandardScaler normalization, one-hot encoding |
+| ⚡ **REST API** | FastAPI backend with Pydantic validation, Swagger UI docs, and instant predictions |
+| 🎨 **Modern UI** | Step-by-step wizard with animated transitions, radial gauge, and risk dashboard |
+| 📱 **Responsive** | Fully responsive design built with Next.js 15 & Tailwind CSS v4 |
+| 🔬 **Advanced Mode** | Optional clinical parameters (7 extra fields) for more precise predictions |
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐     HTTP/JSON      ┌─────────────────┐
+│                 │  ───────────────►   │                 │
+│   Next.js App   │                    │  FastAPI Server  │
+│   (Vercel)      │  ◄───────────────  │  (Render)        │
+│                 │   risk_probability │                 │
+└─────────────────┘                    └────────┬────────┘
+                                                │
+                                       ┌────────▼────────┐
+                                       │  ML Pipeline    │
+                                       │  ├─ model.pkl   │
+                                       │  ├─ scaler.pkl  │
+                                       │  └─ columns.pkl │
+                                       └─────────────────┘
+```
 
 ---
 
 ## 📂 Project Structure
 
-```text
-heart_attack_analysis/
+```
+cardiorisk-ai/
 │
 ├── backend/
-│   ├── main.py              # FastAPI application & API endpoints
-│   └── requirements.txt     # Python dependencies for the backend
+│   ├── main.py                  # FastAPI application & /predict endpoint
+│   └── requirements.txt         # Python dependencies
 │
 ├── data/
-│   └── heart.csv            # Raw dataset containing patient clinical records
+│   └── heart.csv                # UCI Heart Disease dataset (303 records)
 │
 ├── frontend/
-│   ├── src/                 # Next.js source code (React components & pages)
-│   ├── package.json         # Node.js dependencies
-│   └── tailwind.config.*    # Tailwind CSS configuration
+│   ├── src/
+│   │   ├── app/                 # Next.js App Router (pages & layout)
+│   │   ├── components/          # React components (Wizard, Dashboard, Gauge)
+│   │   │   └── steps/           # Individual wizard step components
+│   │   └── lib/                 # Constants, defaults & configurations
+│   ├── package.json
+│   └── tailwind.config.*
 │
 ├── ml_model/
-│   ├── train_model.py       # ML training script (preprocessing, training, export)
-│   ├── heart_disease_model.pkl # Trained Logistic Regression model
-│   ├── scaler.pkl           # Saved standard scaler for numeric features
-│   └── model_columns.pkl    # Saved column structure to ensure consistent input
+│   ├── train_model.py           # Training script (preprocessing → export)
+│   ├── heart_disease_model.pkl  # Serialized Logistic Regression model
+│   ├── scaler.pkl               # Fitted StandardScaler for numeric features
+│   └── model_columns.pkl        # Expected column order after encoding
 │
-└── README.md                # Project documentation
+└── README.md
 ```
 
 ---
 
-## 🧠 Machine Learning & Dataset
+## 🧠 Machine Learning
 
-### Dataset (`data/heart.csv`)
-The project utilizes a heart disease dataset with 13 clinical features. 
-- **Numeric Features**: Age, Resting Blood Pressure (`trtbps`), Cholesterol (`chol`), Maximum Heart Rate Achieved (`thalachh`), ST depression (`oldpeak`).
-- **Categorical Features**: Sex, Chest Pain type (`cp`), Fasting Blood Sugar (`fbs`), Resting Electrocardiographic results (`restecg`), Exercise Induced Angina (`exng`), Slope (`slp`), Number of major vessels (`caa`), Thalassemia (`thall`).
-- **Target (`output`)**: `0` (Low Risk) or `1` (High Risk).
+### Dataset
+The [Heart Attack Analysis & Prediction Dataset](https://www.kaggle.com/datasets/sonialikhan/heart-attack-analysis-and-prediction-dataset) contains **303 patient records** with 13 clinical features:
 
-### Model Training (`ml_model/train_model.py`)
-1. **Outlier Removal**: Uses the Interquartile Range (IQR) method to filter out extreme values in numerical features.
-2. **Encoding**: Applies `pd.get_dummies` to one-hot encode all categorical data.
-3. **Scaling**: Normalizes numerical data using `StandardScaler` to ensure optimal performance for linear models.
-4. **Algorithm**: Trains a **Logistic Regression** classifier (`max_iter=1000`).
-5. **Export**: Serializes the trained model, the scaler, and the expected column structure as `.pkl` files using `joblib` so they can be securely loaded by the backend.
+| Type | Features |
+|------|----------|
+| **Numeric** | `age`, `trtbps` (resting BP), `chol` (cholesterol), `thalachh` (max heart rate), `oldpeak` (ST depression) |
+| **Categorical** | `sex`, `cp` (chest pain type), `fbs` (fasting blood sugar), `restecg` (resting ECG), `exng` (exercise angina), `slp` (ST slope), `caa` (major vessels), `thall` (thalassemia) |
+| **Target** | `output` — `0` = higher risk of heart disease, `1` = lower risk |
 
----
+### Training Pipeline
 
-## ⚙️ Backend (FastAPI)
+```
+Raw Data → Outlier Removal (IQR) → One-Hot Encoding → Train/Test Split (80/20)
+                                                            │
+                                                    StandardScaler (fit on train)
+                                                            │
+                                                    Logistic Regression (max_iter=1000)
+                                                            │
+                                                    Export: model.pkl, scaler.pkl, columns.pkl
+```
 
-The backend exposes a simple yet powerful REST API to interact with the trained model.
-
-- **Framework**: `FastAPI`
-- **Data Validation**: Enforced via `Pydantic` models (`PatientData` class), ensuring the API only accepts properly typed requests.
-- **Processing**: The `/predict` endpoint accepts a JSON payload, converts it into a pandas DataFrame, applies the identical one-hot encoding, aligns the columns to match the trained model using `.reindex`, applies the saved `scaler.pkl`, and finally returns a JSON response containing:
-  - `risk_prediction` (0 or 1)
-  - `risk_probability` (float between 0.0 and 1.0)
-  - `message` ("High Risk!" or "Low Risk.")
-- **CORS**: Configured to seamlessly allow requests from the Next.js frontend running locally on port `3000`.
+- **Algorithm**: Logistic Regression
+- **Test Accuracy**: ~90%
+- **Splitting**: 80/20 with `random_state=42`
 
 ---
 
-## 🖥️ Frontend (Next.js)
+## ⚙️ Backend — FastAPI
 
-The user interface is built with **Next.js** (App Router) and styled beautifully using **Tailwind CSS**.
-- **Interactive Wizard**: A guided form UI component (`Wizard.jsx`) dynamically steps the user through the clinical questions.
-- **Dashboard**: A comprehensive result component (`ResultDashboard.jsx`) coupled with engaging visualizations (`RadialGauge.jsx`) presents the final predicted risk score to the user.
-- **API Integration**: Connects dynamically to the Python backend to fetch real-time predictions.
+The `/predict` endpoint processes incoming patient data through the exact same pipeline used during training:
+
+1. **Receive** JSON payload validated by Pydantic (`PatientData` schema)
+2. **Build** a zeroed DataFrame matching the model's expected columns
+3. **Encode** categorical features via manual one-hot encoding (avoids single-row `pd.get_dummies` pitfalls)
+4. **Scale** numeric features using the saved `StandardScaler`
+5. **Predict** disease probability using the trained model
+6. **Return** `risk_prediction`, `risk_probability`, and `message`
+
+> **Note**: The dataset uses inverted labels — `output=0` represents disease. The API correctly returns `P(class=0)` as the risk probability.
 
 ---
 
-## 🛠️ How to Run the Project Locally
+## 🖥️ Frontend — Next.js
 
-### 1. Train the Machine Learning Model (Optional)
-If you wish to retrain the model on the dataset:
+The user interface provides a guided, step-by-step experience:
+
+- **Interactive Wizard** (`Wizard.jsx`) — 6 steps collecting core clinical data
+- **Radial Gauge** (`RadialGauge.jsx`) — Animated risk visualization
+- **Result Dashboard** (`ResultDashboard.jsx`) — Comprehensive breakdown with personalized insights
+- **Advanced Panel** — Optional accordion for 7 additional clinical parameters with smart defaults
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/ErenBalkis/cardiorisk-ai.git
+cd cardiorisk-ai
+```
+
+### 2. Train the Model *(optional — pre-trained .pkl files are included)*
 ```bash
 cd ml_model
+pip install numpy pandas scikit-learn joblib
 python train_model.py
 ```
-*(This will generate the `.pkl` files required by the backend).*
 
-### 2. Start the Backend (FastAPI)
-Navigate to the `backend` directory, install requirements, and start the uvicorn server:
+### 3. Start the Backend
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
 ```
-The API will be available at `http://127.0.0.1:8000`. You can test endpoints via Swagger UI at `http://127.0.0.1:8000/docs`.
+API available at `http://127.0.0.1:8000` — Swagger docs at [`/docs`](http://127.0.0.1:8000/docs)
 
-### 3. Start the Frontend (Next.js)
-Open a new terminal, navigate to the `frontend` directory, install node modules, and start the dev server:
+### 4. Start the Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-The web application will be accessible at `http://localhost:3000`.
+App available at `http://localhost:3000`
+
+### 5. Environment Variables
+Create a `.env.local` file in the `frontend/` directory:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+For production (Vercel), set this to your deployed backend URL.
+
+---
+
+## 🌐 Live Demo
+
+**Frontend**: [cardiorisk-ai.vercel.app](https://cardiorisk-ai.vercel.app/)
 
 ---
 
 ## 📄 License
-This project is open-source and available under the MIT License.
+
+This project is open-source and available under the [MIT License](LICENSE).
