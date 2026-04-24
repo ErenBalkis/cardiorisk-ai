@@ -9,7 +9,7 @@ import StepBloodPressure from "./steps/StepBloodPressure";
 import StepCholesterol from "./steps/StepCholesterol";
 import StepHeartRate from "./steps/StepHeartRate";
 import ResultDashboard from "./ResultDashboard";
-import { DEFAULTS, API_BASE_URL } from "@/lib/constants";
+import { DEFAULTS } from "@/lib/constants";
 
 const TOTAL_STEPS = 6;
 
@@ -77,7 +77,7 @@ export default function Wizard({ onReset: onBackToHome }) {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/predict`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -93,7 +93,7 @@ export default function Wizard({ onReset: onBackToHome }) {
       console.error("Prediction failed:", err);
       setError(
         "Unable to connect to the analysis server. Please make sure the backend is running on " +
-          API_BASE_URL
+          process.env.NEXT_PUBLIC_API_URL
       );
     } finally {
       setIsLoading(false);
