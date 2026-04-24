@@ -31,7 +31,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -43,14 +43,15 @@ class PatientData(BaseModel):
     cp: int
     trtbps: int
     chol: int
-    fbs: int
-    restecg: int
-    thalachh: int
     exng: int
-    oldpeak: float
-    slp: int
-    caa: int
-    thall: int
+    
+    fbs: int = 0
+    restecg: int = 1
+    thalachh: int = 150
+    oldpeak: float = 0.8
+    slp: int = 1
+    caa: int = 0
+    thall: int = 2
 
 # --- API Endpoints ---
 
